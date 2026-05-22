@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notion Turkey Day Bar</title>
+  <style>
+    :root {
+      --bg-1: #fff7e8;
+      --bg-2: #f4efe2;
+      --ink: #2b2118;
+      --muted: #7d6f63;
+      --line: rgba(43, 33, 24, 0.13);
+      --card: rgba(255, 255, 255, 0.78);
+      --accent: #e07a2d;
+      --accent-2: #9a5c28;
+      --bar-bg: #ead9c2;
+      --bar-fill: linear-gradient(90deg, #f7b267, #f79d65, #e76f51);
+      --shadow: 0 18px 50px rgba(87, 58, 30, 0.16);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255, 219, 157, .75), transparent 34%),
+        radial-gradient(circle at 80% 10%, rgba(233, 143, 71, .22), transparent 30%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: clamp(8px, 2vw, 18px);
+    }
+
+    .widget {
+      width: min(100%, 1280px);
+      aspect-ratio: 21 / 9;
+      min-height: 290px;
+      max-height: 100vh;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      position: relative;
+      overflow: hidden;
+      padding: clamp(18px, 2.2vw, 30px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(14px, 1.8vw, 22px);
+    }
+
+    .widget::before,
+    .widget::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .widget::before {
+      width: 360px;
+      height: 360px;
+      left: -120px;
+      bottom: -210px;
+      background: rgba(224, 122, 45, .13);
+    }
+
+    .widget::after {
+      width: 240px;
+      height: 240px;
+      right: -80px;
+      top: -120px;
+      background: rgba(247, 178, 103, .16);
+    }
+
+    .top {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .dateBlock h1 {
+      margin: 0;
+      font-size: clamp(19px, 2.35vw, 34px);
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .dateBlock p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: clamp(12px, 1.05vw, 15px);
+      font-weight: 650;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      appearance: none;
+      border-radius: 999px;
+      padding: 11px 16px;
+      color: #fff;
+      background: #2b2118;
+      font-weight: 800;
+      font-size: clamp(12px, 1vw, 14px);
+      cursor: pointer;
+      box-shadow: 0 9px 22px rgba(43, 33, 24, .17);
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(43,33,24,.22); }
+    .btn:active { transform: translateY(0); }
+    .btn.secondary { background: rgba(43, 33, 24, .08); color: var(--ink); box-shadow: none; }
+    .btn.danger { background: #a23b2a; }
+
+    .main {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      align-content: center;
+      gap: 13px;
+      padding-top: 4px;
+    }
+
+    .nowLine {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: clamp(15px, 1.45vw, 21px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .nowBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(43,33,24,.08);
+      font-size: clamp(11px, .92vw, 13px);
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .barWrap {
+      position: relative;
+      padding-top: 36px;
+      padding-bottom: 42px;
+    }
+
+    .turkeyTrack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 40px;
+      pointer-events: none;
+    }
+
+    .turkey {
+      --x: 0%;
+      position: absolute;
+      left: var(--x);
+      top: 4px;
+      transform: translateX(-50%);
+      font-size: clamp(24px, 2.7vw, 39px);
+      filter: drop-shadow(0 7px 9px rgba(99, 63, 28, .23));
+      animation: bob 1.6s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -4px; }
+    }
+
+    .bar {
+      position: relative;
+      height: clamp(34px, 4.8vw, 58px);
+      border-radius: 999px;
+      background: var(--bar-bg);
+      box-shadow: inset 0 2px 8px rgba(68,45,25,.1), 0 14px 34px rgba(107,76,45,.12);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.72);
+    }
+
+    .fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      border-radius: inherit;
+      background: var(--bar-fill);
+      transition: width .8s ease;
+    }
+
+    .shine {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.38), transparent 45%, rgba(0,0,0,.03));
+      pointer-events: none;
+    }
+
+    .segmentLayer {
+      position: absolute;
+      inset: 5px;
+      pointer-events: none;
+    }
+
+    .segment {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      min-width: 2px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .42);
+      border: 1px solid rgba(255, 255, 255, .55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0 8px;
+      color: rgba(43,33,24,.84);
+      font-size: clamp(9px, .82vw, 12px);
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      backdrop-filter: blur(2px);
+    }
+
+    .segment.active {
+      background: rgba(43,33,24,.82);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(43,33,24,.22);
+      z-index: 4;
+    }
+
+    .timeMarks {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(43,33,24,.52);
+      font-size: clamp(10px, .85vw, 13px);
+      font-weight: 850;
+    }
+
+    .bottom {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      min-height: 48px;
+    }
+
+    .countdowns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.63);
+      border: 1px solid rgba(43,33,24,.08);
+      color: var(--ink);
+      font-size: clamp(10px, .92vw, 13px);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .chip strong { color: var(--accent-2); }
+
+    .clock {
+      color: rgba(43,33,24,.65);
+      font-size: clamp(12px, 1vw, 15px);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    dialog {
+      width: min(94vw, 860px);
+      max-height: 88vh;
+      border: 0;
+      border-radius: 26px;
+      padding: 0;
+      box-shadow: 0 25px 80px rgba(0,0,0,.28);
+      background: #fffaf2;
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    dialog::backdrop { background: rgba(34, 25, 17, .42); backdrop-filter: blur(4px); }
+
+    .modalHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modalHead h2 { margin: 0; font-size: 22px; letter-spacing: -0.04em; }
+    .modalHead p { margin: 5px 0 0; color: var(--muted); font-weight: 650; font-size: 13px; }
+
+    .modalBody {
+      padding: 20px 24px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 20px;
+      overflow: auto;
+      max-height: calc(88vh - 86px);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,.63);
+      padding: 16px;
+    }
+
+    .panel h3 { margin: 0 0 12px; font-size: 15px; }
+
+    .formGrid { display: grid; gap: 12px; }
+    label { display: grid; gap: 7px; font-size: 12px; color: var(--muted); font-weight: 850; }
+
+    input, select {
+      width: 100%;
+      border: 1px solid rgba(43,33,24,.17);
+      border-radius: 13px;
+      background: #fff;
+      padding: 11px 12px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(224,122,45,.14); }
+
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .weekdays { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    .dayCheck {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(43,33,24,.13);
+      background: #fff;
+      padding: 8px 9px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .dayCheck input { width: auto; accent-color: var(--accent); }
+
+    .formActions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+    .itemList { display: grid; gap: 8px; max-height: 420px; overflow: auto; padding-right: 4px; }
+
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(43,33,24,.1);
+      border-radius: 16px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+
+    .item b { display: block; font-size: 13px; margin-bottom: 3px; }
+    .item span { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .itemBtns { display: flex; gap: 6px; }
+    .miniBtn {
+      border: 0;
+      border-radius: 999px;
+      background: rgba(43,33,24,.08);
+      color: var(--ink);
+      padding: 7px 9px;
+      font-weight: 900;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .miniBtn.del { background: rgba(162,59,42,.1); color: #a23b2a; }
+
+    .hide { display: none !important; }
+
+    @media (max-width: 740px) {
+      body { overflow: auto; }
+      .widget { min-height: 340px; aspect-ratio: auto; }
+      .top, .bottom { align-items: flex-start; }
+      .bottom { flex-direction: column; gap: 10px; }
+      .modalBody { grid-template-columns: 1fr; }
+      .actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="widget" aria-label="하루 일정 진행 표시 바">
+    <section class="top">
+      <div class="dateBlock">
+        <h1 id="todayTitle">오늘은 - 입니다.</h1>
+        <p id="todaySub">하루 진행률을 계산하는 중입니다.</p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="openModal">+ 일정 추가하기</button>
+      </div>
+    </section>
+
+    <section class="main">
+      <div class="nowLine">
+        <span class="nowBadge" id="progressBadge">0%</span>
+        <span id="nowText">지금은 자유 학습 시간입니다.</span>
+      </div>
+
+      <div class="barWrap">
+        <div class="turkeyTrack"><div class="turkey" id="turkey" aria-hidden="true">🦃</div></div>
+        <div class="bar">
+          <div class="fill" id="fill"></div>
+          <div class="segmentLayer" id="segmentLayer"></div>
+          <div class="shine"></div>
+        </div>
+        <div class="timeMarks" aria-hidden="true">
+          <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="bottom">
+      <div class="countdowns" id="countdowns"></div>
+      <div class="clock" id="clock">--:--:--</div>
+    </section>
+  </main>
+
+  <dialog id="scheduleDialog">
+    <div class="modalHead">
+      <div>
+        <h2>일정 추가 및 기본값 수정</h2>
+        <p>저장한 내용은 이 브라우저에 보관됩니다. GitHub Pages에 다시 올리지 않아도 수정됩니다.</p>
+      </div>
+      <button class="btn secondary" id="closeModal">닫기</button>
+    </div>
+    <div class="modalBody">
+      <section class="panel">
+        <h3 id="formTitle">새 일정 추가</h3>
+        <form class="formGrid" id="scheduleForm">
+          <input type="hidden" id="editingId" />
+          <label>
+            일정 종류
+            <select id="kind" required>
+              <option value="daily">매일 반복</option>
+              <option value="weekly">요일 반복</option>
+              <option value="once">특정 날짜 일정</option>
+              <option value="holiday">공휴일 / 하루 표시</option>
+            </select>
+          </label>
+          <label>
+            일정 이름
+            <input id="name" placeholder="예: 오전 스크럼" required />
+          </label>
+          <label id="dateField" class="hide">
+            날짜
+            <input id="date" type="date" />
+          </label>
+          <label id="weekdayField" class="hide">
+            반복 요일
+            <div class="weekdays" id="weekdays">
+              <label class="dayCheck"><input type="checkbox" value="1" />월</label>
+              <label class="dayCheck"><input type="checkbox" value="2" />화</label>
+              <label class="dayCheck"><input type="checkbox" value="3" />수</label>
+              <label class="dayCheck"><input type="checkbox" value="4" />목</label>
+              <label class="dayCheck"><input type="checkbox" value="5" />금</label>
+              <label class="dayCheck"><input type="checkbox" value="6" />토</label>
+              <label class="dayCheck"><input type="checkbox" value="0" />일</label>
+            </div>
+          </label>
+          <div class="two" id="timeFields">
+            <label>
+              시작 시간
+              <input id="start" type="time" />
+            </label>
+            <label>
+              종료 시간
+              <input id="end" type="time" />
+            </label>
+          </div>
+          <label>
+            구분
+            <select id="category">
+              <option value="daily">일상</option>
+              <option value="study">스터디</option>
+              <option value="session">세션/특강</option>
+              <option value="assignment">개인과제</option>
+              <option value="holiday">공휴일</option>
+            </select>
+          </label>
+          <div class="formActions">
+            <button class="btn" type="submit" id="saveBtn">저장하기</button>
+            <button class="btn secondary" type="button" id="clearForm">입력 초기화</button>
+            <button class="btn danger" type="button" id="resetDefault">전체 기본값 복구</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h3>등록된 일정</h3>
+        <div class="itemList" id="itemList"></div>
+      </section>
+    </div>
+  </dialog>
+
+  <script>
+    const CONFIG_KEY = "notion-turkey-daybar-v1";
+    const KST = "Asia/Seoul";
+    const DEFAULT_ITEMS = [
+      { id: "daily-scrum-am", kind: "daily", name: "오전 스크럼", start: "09:00", end: "10:00", category: "daily" },
+      { id: "daily-lunch", kind: "daily", name: "점심", start: "13:00", end: "14:00", category: "daily" },
+      { id: "daily-evening", kind: "daily", name: "오후", start: "18:00", end: "19:00", category: "daily" },
+      { id: "daily-scrum-pm", kind: "daily", name: "오후 스크럼", start: "19:00", end: "20:00", category: "daily" },
+      { id: "daily-til", kind: "daily", name: "TIL 작성", start: "20:00", end: "21:00", category: "study" },
+      { id: "weekly-article", kind: "weekly", name: "아티클 스터디", days: [2, 4], start: "10:30", end: "11:30", category: "study" },
+      { id: "holiday-buddha", kind: "holiday", name: "석가탄신일", date: "2026-05-25", category: "holiday" },
+      { id: "holiday-election", kind: "holiday", name: "지방선거", date: "2026-06-03", category: "holiday" },
+      { id: "session-career", kind: "once", name: "정은튜터님 커리어세션", date: "2026-05-22", start: "19:30", end: "20:30", category: "session" },
+      { id: "session-copy", kind: "once", name: "카피 특강", date: "2026-05-26", start: "15:00", end: "16:00", category: "session" },
+      { id: "session-image", kind: "once", name: "이미지 기획과 제작 세션", date: "2026-05-29", start: "19:30", end: "20:00", category: "session" },
+      { id: "session-video-1", kind: "once", name: "영상제작 특강", date: "2026-06-01", start: "11:00", end: "12:00", category: "session" },
+      { id: "session-video-2", kind: "once", name: "영상 제작 특강2", date: "2026-06-02", start: "19:30", end: "20:00", category: "session" },
+      { id: "assignment-brief", kind: "once", name: "개인과제 발제", date: "2026-06-04", start: "10:00", end: "11:00", category: "assignment" },
+      { id: "assignment-review", kind: "once", name: "개인과제 해설", date: "2026-06-11", start: "11:00", end: "12:00", category: "assignment" }
+    ];
+
+    const categoryEmoji = {
+      daily: "🕘",
+      study: "📚",
+      session: "🎙️",
+      assignment: "📝",
+      holiday: "🎉"
+    };
+
+    const categoryLabel = {
+      daily: "일상",
+      study: "스터디",
+      session: "세션/특강",
+      assignment: "개인과제",
+      holiday: "공휴일"
+    };
+
+    const el = {
+      todayTitle: document.getElementById("todayTitle"),
+      todaySub: document.getElementById("todaySub"),
+      progressBadge: document.getElementById("progressBadge"),
+      nowText: document.getElementById("nowText"),
+      fill: document.getElementById("fill"),
+      turkey: document.getElementById("turkey"),
+      segmentLayer: document.getElementById("segmentLayer"),
+      countdowns: document.getElementById("countdowns"),
+      clock: document.getElementById("clock"),
+      dialog: document.getElementById("scheduleDialog"),
+      openModal: document.getElementById("openModal"),
+      closeModal: document.getElementById("closeModal"),
+      form: document.getElementById("scheduleForm"),
+      formTitle: document.getElementById("formTitle"),
+      editingId: document.getElementById("editingId"),
+      kind: document.getElementById("kind"),
+      name: document.getElementById("name"),
+      date: document.getElementById("date"),
+      start: document.getElementById("start"),
+      end: document.getElementById("end"),
+      category: document.getElementById("category"),
+      dateField: document.getElementById("dateField"),
+      weekdayField: document.getElementById("weekdayField"),
+      timeFields: document.getElementById("timeFields"),
+      itemList: document.getElementById("itemList"),
+      clearForm: document.getElementById("clearForm"),
+      resetDefault: document.getElementById("resetDefault"),
+      saveBtn: document.getElementById("saveBtn")
+    };
+
+    let items = loadItems();
+
+    function loadItems() {
+      try {
+        const saved = localStorage.getItem(CONFIG_KEY);
+        return saved ? JSON.parse(saved) : structuredClone(DEFAULT_ITEMS);
+      } catch (_) {
+        return structuredClone(DEFAULT_ITEMS);
+      }
+    }
+
+    function saveItems() {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(items));
+    }
+
+    function uid() {
+      return crypto?.randomUUID ? crypto.randomUUID() : `item-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function getKstParts(date = new Date()) {
+      const parts = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: KST,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).formatToParts(date).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+
+      const year = Number(parts.year);
+      const month = Number(parts.month);
+      const day = Number(parts.day);
+      const hour = Number(parts.hour === "24" ? "00" : parts.hour);
+      const minute = Number(parts.minute);
+      const second = Number(parts.second);
+      const dateString = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const weekdayMap = { "일": 0, "월": 1, "화": 2, "수": 3, "목": 4, "금": 5, "토": 6 };
+      return { year, month, day, hour, minute, second, dateString, weekday: weekdayMap[parts.weekday] ?? 0 };
+    }
+
+    function minutes(time) {
+      const [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    function eventStartDate(item) {
+      const t = item.kind === "holiday" ? "00:00" : item.start;
+      return new Date(`${item.date}T${t}:00+09:00`);
+    }
+
+    function eventEndDate(item) {
+      if (item.kind === "holiday") return new Date(`${item.date}T23:59:59+09:00`);
+      return new Date(`${item.date}T${item.end}:00+09:00`);
+    }
+
+    function todayEvents(parts) {
+      return items.flatMap(item => {
+        if (item.kind === "daily") return [{ ...item, date: parts.dateString, dayStart: minutes(item.start), dayEnd: minutes(item.end) }];
+        if (item.kind === "weekly" && item.days?.includes(parts.weekday)) return [{ ...item, date: parts.dateString, dayStart: minutes(item.start), dayEnd: minutes(item.end) }];
+        if (item.kind === "once" && item.date === parts.dateString) return [{ ...item, dayStart: minutes(item.start), dayEnd: minutes(item.end) }];
+        if (item.kind === "holiday" && item.date === parts.dateString) return [{ ...item, dayStart: 0, dayEnd: 1440, name: `${item.name}` }];
+        return [];
+      }).sort((a, b) => a.dayStart - b.dayStart || eventWeight(b) - eventWeight(a));
+    }
+
+    function eventWeight(item) {
+      if (item.kind === "once") return 4;
+      if (item.kind === "weekly") return 3;
+      if (item.kind === "daily") return 2;
+      if (item.kind === "holiday") return 1;
+      return 0;
+    }
+
+    function activeEvent(events, nowMinutes) {
+      return events
+        .filter(item => nowMinutes >= item.dayStart && nowMinutes < item.dayEnd)
+        .sort((a, b) => eventWeight(b) - eventWeight(a))[0];
+    }
+
+    function render() {
+      const now = new Date();
+      const p = getKstParts(now);
+      const nowMinutes = p.hour * 60 + p.minute + p.second / 60;
+      const progress = Math.max(0, Math.min(100, (nowMinutes / 1440) * 100));
+      const events = todayEvents(p);
+      const active = activeEvent(events, nowMinutes);
+
+      el.todayTitle.textContent = `오늘은 ${p.year}년 ${p.month}월 ${p.day}일 입니다.`;
+      el.todaySub.textContent = `KST 기준 · ${dayName(p.weekday)}요일 · 하루 ${Math.floor(progress)}% 진행 중`;
+      el.clock.textContent = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}:${String(p.second).padStart(2, "0")}`;
+      el.progressBadge.textContent = `${progress.toFixed(1)}%`;
+      el.fill.style.width = `${progress}%`;
+      el.turkey.style.setProperty("--x", `${progress}%`);
+      el.nowText.textContent = active ? `지금은 ${active.name} 시간입니다.` : "지금은 자유 학습 시간입니다.";
+
+      renderSegments(events, nowMinutes);
+      renderCountdowns(now);
+    }
+
+    function renderSegments(events, nowMinutes) {
+      el.segmentLayer.innerHTML = "";
+      events.forEach(item => {
+        const start = Math.max(0, item.dayStart);
+        const end = Math.min(1440, item.dayEnd);
+        const left = (start / 1440) * 100;
+        const width = Math.max(.2, ((end - start) / 1440) * 100);
+        const seg = document.createElement("div");
+        seg.className = "segment" + (nowMinutes >= start && nowMinutes < end ? " active" : "");
+        seg.style.left = `${left}%`;
+        seg.style.width = `${width}%`;
+        seg.title = describeItem(item);
+        seg.textContent = width > 5 ? item.name : "";
+        el.segmentLayer.appendChild(seg);
+      });
+    }
+
+    function renderCountdowns(now) {
+      const upcoming = items
+        .filter(item => item.kind === "once" || item.kind === "holiday")
+        .map(item => ({ item, start: eventStartDate(item), end: eventEndDate(item) }))
+        .filter(({ start, end }) => end >= now)
+        .sort((a, b) => a.start - b.start)
+        .slice(0, 4);
+
+      el.countdowns.innerHTML = "";
+      if (!upcoming.length) {
+        el.countdowns.innerHTML = `<span class="chip">✅ 등록된 공휴일·세션·개인과제가 모두 지났어요</span>`;
+        return;
+      }
+
+      upcoming.forEach(({ item, start, end }) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        const state = now >= start && now <= end ? "진행 중" : remainingText(start - now);
+        chip.innerHTML = `${categoryEmoji[item.category] || "📌"} <strong>${item.name}</strong> ${state}`;
+        el.countdowns.appendChild(chip);
+      });
+    }
+
+    function remainingText(ms) {
+      const minute = 60 * 1000;
+      const hour = 60 * minute;
+      const day = 24 * hour;
+      if (ms <= 0) return "곧 시작";
+      if (ms < hour) return `${Math.ceil(ms / minute)}분 남음`;
+      if (ms < day) {
+        const h = Math.floor(ms / hour);
+        const m = Math.floor((ms % hour) / minute);
+        return m ? `${h}시간 ${m}분 남음` : `${h}시간 남음`;
+      }
+      return `${Math.ceil(ms / day)}일 남음`;
+    }
+
+    function dayName(n) {
+      return ["일", "월", "화", "수", "목", "금", "토"][n];
+    }
+
+    function describeItem(item) {
+      if (item.kind === "daily") return `매일 ${item.start}-${item.end} · ${item.name}`;
+      if (item.kind === "weekly") return `매주 ${item.days.map(dayName).join("·")} ${item.start}-${item.end} · ${item.name}`;
+      if (item.kind === "once") return `${item.date} ${item.start}-${item.end} · ${item.name}`;
+      return `${item.date} · ${item.name}`;
+    }
+
+    function renderItemList() {
+      const order = { holiday: 0, once: 1, weekly: 2, daily: 3 };
+      const sorted = [...items].sort((a, b) => {
+        if ((order[a.kind] ?? 9) !== (order[b.kind] ?? 9)) return (order[a.kind] ?? 9) - (order[b.kind] ?? 9);
+        return describeItem(a).localeCompare(describeItem(b), "ko");
+      });
+
+      el.itemList.innerHTML = "";
+      sorted.forEach(item => {
+        const node = document.createElement("div");
+        node.className = "item";
+        node.innerHTML = `
+          <div>
+            <b>${categoryEmoji[item.category] || "📌"} ${item.name}</b>
+            <span>${categoryLabel[item.category] || "기타"} · ${describeItem(item)}</span>
+          </div>
+          <div class="itemBtns">
+            <button class="miniBtn" data-edit="${item.id}">수정</button>
+            <button class="miniBtn del" data-delete="${item.id}">삭제</button>
+          </div>
+        `;
+        el.itemList.appendChild(node);
+      });
+    }
+
+    function toggleFields() {
+      const kind = el.kind.value;
+      el.dateField.classList.toggle("hide", !(kind === "once" || kind === "holiday"));
+      el.weekdayField.classList.toggle("hide", kind !== "weekly");
+      el.timeFields.classList.toggle("hide", kind === "holiday");
+      el.category.value = kind === "holiday" ? "holiday" : el.category.value;
+    }
+
+    function clearForm() {
+      el.form.reset();
+      el.editingId.value = "";
+      el.formTitle.textContent = "새 일정 추가";
+      el.saveBtn.textContent = "저장하기";
+      [...document.querySelectorAll("#weekdays input")].forEach(input => input.checked = false);
+      toggleFields();
+    }
+
+    function fillForm(item) {
+      el.editingId.value = item.id;
+      el.kind.value = item.kind;
+      el.name.value = item.name;
+      el.date.value = item.date || "";
+      el.start.value = item.start || "";
+      el.end.value = item.end || "";
+      el.category.value = item.category || "daily";
+      [...document.querySelectorAll("#weekdays input")].forEach(input => {
+        input.checked = item.days?.includes(Number(input.value)) || false;
+      });
+      el.formTitle.textContent = "일정 수정";
+      el.saveBtn.textContent = "수정 저장";
+      toggleFields();
+    }
+
+    el.openModal.addEventListener("click", () => {
+      renderItemList();
+      el.dialog.showModal();
+    });
+
+    el.closeModal.addEventListener("click", () => el.dialog.close());
+    el.kind.addEventListener("change", toggleFields);
+    el.clearForm.addEventListener("click", clearForm);
+
+    el.resetDefault.addEventListener("click", () => {
+      if (!confirm("현재 브라우저에 저장된 일정을 지우고 처음 기본값으로 복구할까요?")) return;
+      items = structuredClone(DEFAULT_ITEMS);
+      saveItems();
+      clearForm();
+      renderItemList();
+      render();
+    });
+
+    el.form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const kind = el.kind.value;
+      const item = {
+        id: el.editingId.value || uid(),
+        kind,
+        name: el.name.value.trim(),
+        category: el.category.value
+      };
+
+      if (!item.name) return alert("일정 이름을 입력해주세요.");
+
+      if (kind === "once" || kind === "holiday") {
+        item.date = el.date.value;
+        if (!item.date) return alert("날짜를 선택해주세요.");
+      }
+
+      if (kind === "weekly") {
+        item.days = [...document.querySelectorAll("#weekdays input:checked")].map(input => Number(input.value));
+        if (!item.days.length) return alert("반복 요일을 하나 이상 선택해주세요.");
+      }
+
+      if (kind !== "holiday") {
+        item.start = el.start.value;
+        item.end = el.end.value;
+        if (!item.start || !item.end) return alert("시작 시간과 종료 시간을 입력해주세요.");
+        if (minutes(item.start) >= minutes(item.end)) return alert("종료 시간은 시작 시간보다 늦어야 합니다.");
+      }
+
+      const idx = items.findIndex(saved => saved.id === item.id);
+      if (idx >= 0) items[idx] = item;
+      else items.push(item);
+
+      saveItems();
+      clearForm();
+      renderItemList();
+      render();
+    });
+
+    el.itemList.addEventListener("click", (e) => {
+      const editId = e.target.dataset.edit;
+      const deleteId = e.target.dataset.delete;
+      if (editId) {
+        const item = items.find(x => x.id === editId);
+        if (item) fillForm(item);
+      }
+      if (deleteId) {
+        const item = items.find(x => x.id === deleteId);
+        if (!item) return;
+        if (!confirm(`'${item.name}' 일정을 삭제할까요?`)) return;
+        items = items.filter(x => x.id !== deleteId);
+        saveItems();
+        renderItemList();
+        render();
+      }
+    });
+
+    toggleFields();
+    render();
+    setInterval(render, 1000);
+  </script>
+</body>
+</html>
