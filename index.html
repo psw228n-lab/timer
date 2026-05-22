@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Green Turkey Day Bar v5</title>
+  <title>Notion Green Turkey Day Bar v6</title>
   <style>
     :root {
       --sky-1: #f4ffe8;
@@ -606,7 +606,7 @@
   <main class="widget" aria-label="하루 일정 진행 표시 바">
     <section class="top">
       <div class="dateBlock">
-        <h1 id="todayTitle">오늘은 - 입니다.</h1>
+        <h1 id="todayTitle">오늘은 캠프 -일차 입니다.</h1>
         <p id="todaySub">하루 진행률을 계산하는 중입니다.</p>
       </div>
       <div class="actions">
@@ -708,6 +708,7 @@
   <script>
     const CONFIG_KEY = "notion-green-turkey-daybar-v2";
     const KST = "Asia/Seoul";
+    const CAMP_START_DATE = "2026-04-30";
 
     const DEFAULT_ITEMS = [
       { id: "daily-scrum-am", recurrence: "daily", name: "오전 스크럼", start: "09:00", end: "10:00", category: "daily" },
@@ -917,6 +918,13 @@
         .sort((a, b) => eventWeight(b) - eventWeight(a))[0];
     }
 
+    function getCampDay(parts) {
+      const start = dateAtKst(CAMP_START_DATE, "00:00");
+      const current = dateAtKst(parts.dateString, "00:00");
+      const diffDays = Math.floor((current - start) / 86400000);
+      return Math.max(1, diffDays + 1);
+    }
+
     function render() {
       const now = new Date();
       const p = getKstParts(now);
@@ -926,8 +934,8 @@
       const active = activeEvent(events, nowMinutes);
 
       const timeText = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}:${String(p.second).padStart(2, "0")}`;
-      el.todayTitle.textContent = `오늘은 ${p.year}년 ${p.month}월 ${p.day}일 입니다.`;
-      el.todaySub.textContent = `${dayName(p.weekday)}요일 · 현재 ${timeText} · 하루 ${progress.toFixed(1)}% 진행 중`;
+      el.todayTitle.textContent = `오늘은 캠프 ${getCampDay(p)}일차 입니다.`;
+      el.todaySub.textContent = `${dayName(p.weekday)}요일 · 현재 ${timeText} · 하루 중 ${progress.toFixed(1)}% 진행 중`;
       el.clock.textContent = timeText;
       el.progressBadge.textContent = ``;
       el.fill.style.width = `${progress}%`;
