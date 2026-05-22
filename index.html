@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Green Turkey Day Bar v4</title>
+  <title>Notion Green Turkey Day Bar v5</title>
   <style>
     :root {
       --sky-1: #f4ffe8;
@@ -479,6 +479,69 @@
     .formGrid { display: grid; gap: 12px; }
     label { display: grid; gap: 7px; font-size: 12px; color: var(--muted); font-weight: 850; }
 
+    .switchRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 13px;
+      border: 1px solid rgba(23,53,31,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.72);
+    }
+
+    .switchText strong {
+      display: block;
+      font-size: 13px;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .switchText span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .switch {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(23,53,31,.16);
+      transition: background .18s ease;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      left: 3px;
+      top: 3px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 5px 12px rgba(23,53,31,.18);
+      transition: transform .18s ease;
+    }
+
+    .switch input:checked + .slider { background: linear-gradient(135deg, #2f9e44, #1b7f3a); }
+    .switch input:checked + .slider::before { transform: translateX(24px); }
+
     input, select {
       width: 100%;
       border: 1px solid rgba(23,53,31,.17);
@@ -594,11 +657,21 @@
         <h3 id="formTitle">새 일정 추가</h3>
         <form class="formGrid" id="scheduleForm">
           <input type="hidden" id="editingId" />
-          <p class="formHint" id="repeatHint">새 일정은 시작/종료 날짜와 시간으로 등록됩니다.</p>
+          <p class="formHint" id="repeatHint">새 일정은 하루종일 여부, 시작/종료 시간, 반복 규칙으로 등록됩니다.</p>
           <label>
             일정 이름
             <input id="name" placeholder="예: 카피 특강" required />
           </label>
+          <div class="switchRow">
+            <div class="switchText">
+              <strong>하루종일</strong>
+              <span>켜면 해당 날짜의 00:00부터 23:59까지 표시돼요.</span>
+            </div>
+            <label class="switch" aria-label="하루종일 설정">
+              <input id="allDay" type="checkbox" />
+              <span class="slider"></span>
+            </label>
+          </div>
           <div class="two">
             <label>
               시작 년월일 시간
@@ -609,8 +682,14 @@
               <input id="endDateTime" type="datetime-local" required />
             </label>
           </div>
-          <input type="hidden" id="category" value="other" />
-          <input type="hidden" id="customCategory" value="" />
+          <label>
+            반복
+            <select id="recurrence">
+              <option value="once">반복 없음</option>
+              <option value="daily">매일</option>
+              <option value="weekly">매주</option>
+            </select>
+          </label>
           <div class="formActions">
             <button class="btn" type="submit" id="saveBtn">저장하기</button>
             <button class="btn secondary" type="button" id="clearForm">입력 초기화</button>
@@ -687,9 +766,8 @@
       name: document.getElementById("name"),
       startDateTime: document.getElementById("startDateTime"),
       endDateTime: document.getElementById("endDateTime"),
-      category: document.getElementById("category"),
-      customCategoryField: document.getElementById("customCategoryField"),
-      customCategory: document.getElementById("customCategory"),
+      allDay: document.getElementById("allDay"),
+      recurrence: document.getElementById("recurrence"),
       itemList: document.getElementById("itemList"),
       clearForm: document.getElementById("clearForm"),
       resetDefault: document.getElementById("resetDefault"),
@@ -757,25 +835,42 @@
       return new Date(`${value}:00+09:00`);
     }
 
+    function datePart(value) {
+      return value ? value.slice(0, 10) : "";
+    }
+
+    function timePart(value) {
+      return value ? value.slice(11, 16) : "";
+    }
+
+    function weekdayFromDateValue(value) {
+      const d = parseKstDateTime(`${datePart(value)}T00:00`);
+      if (!d) return getKstParts().weekday;
+      const weekday = new Intl.DateTimeFormat("ko-KR", { timeZone: KST, weekday: "short" }).format(d).replace("요일", "");
+      const weekdayMap = { "일": 0, "월": 1, "화": 2, "수": 3, "목": 4, "금": 5, "토": 6 };
+      return weekdayMap[weekday] ?? getKstParts().weekday;
+    }
+
     function dateAtKst(dateString, time = "00:00") {
       return new Date(`${dateString}T${time}:00+09:00`);
     }
 
     function formatTimeRange(item) {
-      if (item.recurrence === "daily") return `매일 ${item.start}-${item.end}`;
-      if (item.recurrence === "weekly") return `매주 ${item.days.map(dayName).join("·")} ${item.start}-${item.end}`;
+      const range = item.allDay ? "하루종일" : `${item.start || timePart(item.startAt)}-${item.end || timePart(item.endAt)}`;
+      if (item.recurrence === "daily") return `매일 ${range}`;
+      if (item.recurrence === "weekly") return `매주 ${(item.days || []).map(dayName).join("·")} ${range}`;
       const s = item.startAt ? item.startAt.replace("T", " ") : "";
       const e = item.endAt ? item.endAt.replace("T", " ") : "";
-      return `${s} ~ ${e}`;
+      return item.allDay ? `${datePart(item.startAt)} 하루종일` : `${s} ~ ${e}`;
     }
 
     function eventStartDate(item, parts = getKstParts()) {
-      if (item.recurrence === "daily" || item.recurrence === "weekly") return dateAtKst(parts.dateString, item.start);
+      if (item.recurrence === "daily" || item.recurrence === "weekly") return dateAtKst(item.startDate || parts.dateString, item.allDay ? "00:00" : item.start);
       return parseKstDateTime(item.startAt);
     }
 
     function eventEndDate(item, parts = getKstParts()) {
-      if (item.recurrence === "daily" || item.recurrence === "weekly") return dateAtKst(parts.dateString, item.end);
+      if (item.recurrence === "daily" || item.recurrence === "weekly") return dateAtKst(item.startDate || parts.dateString, item.allDay ? "23:59" : item.end);
       return parseKstDateTime(item.endAt);
     }
 
@@ -785,11 +880,13 @@
 
       return items.flatMap(item => {
         if (item.recurrence === "daily") {
-          return [{ ...item, dayStart: minutes(item.start), dayEnd: minutes(item.end) }];
+          if (item.startDate && parts.dateString < item.startDate) return [];
+          return [{ ...item, dayStart: item.allDay ? 0 : minutes(item.start), dayEnd: item.allDay ? 1440 : minutes(item.end) }];
         }
 
         if (item.recurrence === "weekly" && item.days && item.days.includes(parts.weekday)) {
-          return [{ ...item, dayStart: minutes(item.start), dayEnd: minutes(item.end) }];
+          if (item.startDate && parts.dateString < item.startDate) return [];
+          return [{ ...item, dayStart: item.allDay ? 0 : minutes(item.start), dayEnd: item.allDay ? 1440 : minutes(item.end) }];
         }
 
         if (item.recurrence === "once") {
@@ -989,10 +1086,22 @@
       });
     }
 
-    function toggleCustomCategory() {
-      // v4에서는 화면에서 구분 입력을 없앴습니다. 새 일정은 내부적으로 기타 일정으로 저장됩니다.
-      if (el.category) el.category.value = "other";
-      if (el.customCategory) el.customCategory.value = "";
+    function applyAllDayToInputs() {
+      if (!el.allDay.checked) return;
+      if (el.startDateTime.value) el.startDateTime.value = `${datePart(el.startDateTime.value)}T00:00`;
+      if (el.endDateTime.value) el.endDateTime.value = `${datePart(el.endDateTime.value)}T23:59`;
+    }
+
+    function updateRepeatHint() {
+      const selected = el.recurrence.value;
+      if (selected === "daily") {
+        el.repeatHint.textContent = "매일 반복됩니다. 시작/종료 시간은 하루 일정에 표시될 시간을 의미해요.";
+      } else if (selected === "weekly") {
+        const day = el.startDateTime.value ? dayName(weekdayFromDateValue(el.startDateTime.value)) : "선택한";
+        el.repeatHint.textContent = `매주 ${day}요일마다 반복됩니다. 시작 날짜의 요일을 기준으로 잡아요.`;
+      } else {
+        el.repeatHint.textContent = "반복 없이 시작/종료 날짜와 시간으로 한 번만 등록됩니다.";
+      }
     }
 
     function setDefaultDateTimes() {
@@ -1006,33 +1115,31 @@
       el.editingId.value = "";
       el.formTitle.textContent = "새 일정 추가";
       el.saveBtn.textContent = "저장하기";
-      el.repeatHint.textContent = "새 일정은 시작/종료 날짜와 시간으로 등록됩니다.";
+      el.allDay.checked = false;
+      el.recurrence.value = "once";
       setDefaultDateTimes();
-      toggleCustomCategory();
+      updateRepeatHint();
     }
 
     function fillForm(item) {
       const p = getKstParts();
       el.editingId.value = item.id;
       el.name.value = item.name;
-      el.category.value = item.category || "daily";
-      el.customCategory.value = item.categoryName || "";
+      el.allDay.checked = !!item.allDay;
+      el.recurrence.value = item.recurrence || "once";
 
       if (item.recurrence === "daily" || item.recurrence === "weekly") {
-        el.startDateTime.value = `${p.dateString}T${item.start}`;
-        el.endDateTime.value = `${p.dateString}T${item.end}`;
-        el.repeatHint.textContent = item.recurrence === "weekly"
-          ? `반복 규칙은 유지됩니다. 현재 항목: 매주 ${item.days.map(dayName).join("·")}`
-          : "반복 규칙은 유지됩니다. 현재 항목: 매일";
+        const baseDate = item.startDate || p.dateString;
+        el.startDateTime.value = `${baseDate}T${item.allDay ? "00:00" : item.start}`;
+        el.endDateTime.value = `${baseDate}T${item.allDay ? "23:59" : item.end}`;
       } else {
         el.startDateTime.value = item.startAt || "";
         el.endDateTime.value = item.endAt || "";
-        el.repeatHint.textContent = "이 일정은 시작/종료 날짜와 시간으로 수정됩니다.";
       }
 
       el.formTitle.textContent = "일정 수정";
       el.saveBtn.textContent = "수정 저장";
-      toggleCustomCategory();
+      updateRepeatHint();
     }
 
     el.openModal.addEventListener("click", () => {
@@ -1043,7 +1150,10 @@
 
     el.closeModal.addEventListener("click", () => el.dialog.close());
     el.clearForm.addEventListener("click", clearForm);
-    el.category.addEventListener("change", toggleCustomCategory);
+    el.allDay.addEventListener("change", () => { applyAllDayToInputs(); updateRepeatHint(); });
+    el.startDateTime.addEventListener("change", () => { applyAllDayToInputs(); updateRepeatHint(); });
+    el.endDateTime.addEventListener("change", applyAllDayToInputs);
+    el.recurrence.addEventListener("change", updateRepeatHint);
 
     el.resetDefault.addEventListener("click", () => {
       if (!confirm("현재 브라우저에 저장된 일정을 지우고 처음 기본값으로 복구할까요?")) return;
@@ -1059,33 +1169,47 @@
       const existing = items.find(saved => saved.id === el.editingId.value);
       const startValue = el.startDateTime.value;
       const endValue = el.endDateTime.value;
-      const startDate = parseKstDateTime(startValue);
-      const endDate = parseKstDateTime(endValue);
+      const normalizedStart = el.allDay.checked ? `${datePart(startValue)}T00:00` : startValue;
+      const normalizedEnd = el.allDay.checked ? `${datePart(endValue)}T23:59` : endValue;
+      const startDate = parseKstDateTime(normalizedStart);
+      const endDate = parseKstDateTime(normalizedEnd);
 
       if (!el.name.value.trim()) return alert("일정 이름을 입력해주세요.");
       if (!startValue || !endValue) return alert("시작 년월일 시간과 종료 년월일 시간을 입력해주세요.");
       if (!startDate || !endDate || startDate >= endDate) return alert("종료 년월일 시간은 시작보다 늦어야 합니다.");
+      const repeat = el.recurrence.value;
       const base = {
         id: el.editingId.value || uid(),
         name: el.name.value.trim(),
         category: existing?.category || "other",
-        categoryName: ""
+        categoryName: "",
+        allDay: el.allDay.checked
       };
 
       let item;
-      if (existing && (existing.recurrence === "daily" || existing.recurrence === "weekly")) {
+      if (repeat === "daily") {
         item = {
-          ...existing,
           ...base,
-          start: startValue.slice(11, 16),
-          end: endValue.slice(11, 16)
+          recurrence: "daily",
+          startDate: datePart(normalizedStart),
+          start: timePart(normalizedStart),
+          end: timePart(normalizedEnd)
+        };
+      } else if (repeat === "weekly") {
+        item = {
+          ...base,
+          recurrence: "weekly",
+          startDate: datePart(normalizedStart),
+          days: [weekdayFromDateValue(normalizedStart)],
+          start: timePart(normalizedStart),
+          end: timePart(normalizedEnd)
         };
       } else {
         item = {
           ...base,
           recurrence: "once",
-          startAt: startValue,
-          endAt: endValue
+          startAt: normalizedStart,
+          endAt: normalizedEnd
         };
       }
 
