@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Green Turkey Day Bar v6</title>
+  <title>Notion Green Turkey Day Bar v10</title>
   <style>
     :root {
       --sky-1: #f4ffe8;
@@ -315,22 +315,22 @@
       position: absolute;
       left: var(--dot-left);
       top: 50%;
-      width: clamp(16px, 1.55vw, 22px);
-      height: clamp(16px, 1.55vw, 22px);
+      width: clamp(17px, 1.65vw, 24px);
+      height: clamp(17px, 1.65vw, 24px);
       transform: translate(-50%, -50%);
       border-radius: 999px;
-      background: rgba(255,255,255,.28);
-      border: 2px solid rgba(255,255,255,.72);
-      box-shadow: 0 5px 16px rgba(20, 90, 34, .18), inset 0 0 0 4px rgba(47,158,68,.18);
+      background: rgba(255,255,255,.34);
+      border: 2px solid rgba(255,255,255,.82);
+      box-shadow: 0 6px 18px rgba(20, 90, 34, .2), inset 0 0 0 5px rgba(47,158,68,.24);
       pointer-events: auto;
       cursor: help;
       touch-action: manipulation;
     }
 
     .eventDot.active {
-      background: rgba(255,255,255,.7);
+      background: rgba(255,255,255,.78);
       border-color: #fff;
-      box-shadow: 0 7px 18px rgba(23, 53, 31, .25), inset 0 0 0 5px rgba(47,158,68,.35);
+      box-shadow: 0 8px 22px rgba(23, 53, 31, .26), inset 0 0 0 6px rgba(47,158,68,.38);
     }
 
     .eventDot::after {
@@ -430,6 +430,201 @@
       font-size: clamp(12px, .96vw, 15px);
       font-weight: 900;
       white-space: nowrap;
+    }
+
+    .detailAction {
+      position: absolute;
+      right: clamp(13px, 1.6vw, 22px);
+      bottom: clamp(11px, 1.35vw, 18px);
+      z-index: 7;
+      background: rgba(255,255,255,.72);
+      color: var(--ink);
+      border: 1px solid rgba(23,53,31,.1);
+      box-shadow: 0 8px 22px rgba(35,122,57,.14);
+    }
+
+    .detailBody {
+      padding: 18px 24px 24px;
+      overflow: auto;
+      max-height: calc(88vh - 84px);
+    }
+
+    .ganttCard {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,.72);
+      padding: 16px;
+    }
+
+    .ganttSummary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 13px;
+    }
+
+    .ganttAxis {
+      display: grid;
+      grid-template-columns: 126px 1fr;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 8px;
+      color: rgba(23,53,31,.6);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .axisTrack {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2px;
+    }
+
+    .ganttRows {
+      display: grid;
+      gap: 9px;
+    }
+
+    .ganttRow {
+      display: grid;
+      grid-template-columns: 126px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ganttName {
+      min-width: 0;
+    }
+
+    .ganttName b {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ganttName span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .ganttTrack {
+      position: relative;
+      height: 34px;
+      border-radius: 999px;
+      background:
+        repeating-linear-gradient(90deg, rgba(23,53,31,.065) 0 1px, transparent 1px 25%),
+        rgba(207, 233, 189, .72);
+      overflow: visible;
+      border: 1px solid rgba(23,53,31,.08);
+    }
+
+    .ganttBar {
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: var(--g-left);
+      width: var(--g-width);
+      min-width: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8de05b, #2f9e44);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+      box-shadow: 0 7px 14px rgba(35,122,57,.18);
+      z-index: 2;
+      cursor: help;
+    }
+
+    .ganttBarText {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .ganttBar.narrow .ganttBarText {
+      display: none;
+    }
+
+    .ganttBar::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%) translateY(5px);
+      width: max-content;
+      max-width: 260px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(23, 53, 31, .94);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.35;
+      white-space: normal;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, transform .16s ease;
+      z-index: 30;
+    }
+
+    .ganttBar::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 4px);
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(23, 53, 31, .94);
+      opacity: 0;
+      transition: opacity .16s ease;
+      z-index: 30;
+    }
+
+    .ganttBar:hover::after,
+    .ganttBar:hover::before,
+    .ganttBar:focus-visible::after,
+    .ganttBar:focus-visible::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .ganttNow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--now-left);
+      width: 2px;
+      background: rgba(23,53,31,.55);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.6);
+      z-index: 3;
+    }
+
+    .emptyGantt {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 850;
+      border-radius: 18px;
+      background: rgba(255,255,255,.6);
     }
 
     dialog {
@@ -599,6 +794,9 @@
       .actions { justify-content: flex-start; }
       .speechBubble { max-width: 240px; }
       .two { grid-template-columns: 1fr; }
+      .detailAction { right: 14px; bottom: 12px; }
+      .ganttAxis, .ganttRow { grid-template-columns: 92px 1fr; gap: 8px; }
+      .ganttName b { font-size: 12px; }
     }
   </style>
 </head>
@@ -637,6 +835,8 @@
         </div>
       </div>
     </section>
+
+    <button class="btn detailAction" id="openDetails">자세히 보기</button>
 
     <section class="bottom" aria-hidden="true">
       <div class="countdowns" id="countdowns"></div>
@@ -705,10 +905,31 @@
     </div>
   </dialog>
 
+  <dialog id="detailDialog">
+    <div class="modalHead">
+      <div>
+        <h2>자세히 보기</h2>
+        <p id="detailSub">오늘의 일정을 간트차트로 확인합니다.</p>
+      </div>
+      <button class="btn secondary" id="closeDetails">닫기</button>
+    </div>
+    <div class="detailBody">
+      <section class="ganttCard">
+        <div class="ganttSummary" id="ganttSummary"></div>
+        <div class="ganttAxis" aria-hidden="true">
+          <span></span>
+          <div class="axisTrack"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+        </div>
+        <div class="ganttRows" id="ganttRows"></div>
+      </section>
+    </div>
+  </dialog>
+
   <script>
     const CONFIG_KEY = "notion-green-turkey-daybar-v2";
     const KST = "Asia/Seoul";
-    const CAMP_START_DATE = "2026-04-30";
+    const CAMP_START_DATE = "2026-04-22";
+    const HOLIDAY_DATES = ["2026-05-25", "2026-06-03"];
 
     const DEFAULT_ITEMS = [
       { id: "daily-scrum-am", recurrence: "daily", name: "오전 스크럼", start: "09:00", end: "10:00", category: "daily" },
@@ -772,7 +993,13 @@
       itemList: document.getElementById("itemList"),
       clearForm: document.getElementById("clearForm"),
       resetDefault: document.getElementById("resetDefault"),
-      saveBtn: document.getElementById("saveBtn")
+      saveBtn: document.getElementById("saveBtn"),
+      detailDialog: document.getElementById("detailDialog"),
+      openDetails: document.getElementById("openDetails"),
+      closeDetails: document.getElementById("closeDetails"),
+      detailSub: document.getElementById("detailSub"),
+      ganttSummary: document.getElementById("ganttSummary"),
+      ganttRows: document.getElementById("ganttRows")
     };
 
     let items = loadItems();
@@ -918,11 +1145,44 @@
         .sort((a, b) => eventWeight(b) - eventWeight(a))[0];
     }
 
+    function getHolidayDateSet() {
+      const set = new Set(HOLIDAY_DATES);
+
+      items.forEach(item => {
+        if (item.category !== "holiday" || !item.startAt) return;
+        const start = parseKstDateTime(item.startAt);
+        const end = parseKstDateTime(item.endAt || item.startAt);
+        if (!start || !end) return;
+
+        let cursor = dateAtKst(datePart(item.startAt), "00:00");
+        const last = dateAtKst(datePart(item.endAt || item.startAt), "00:00");
+        while (cursor <= last) {
+          set.add(getKstParts(cursor).dateString);
+          cursor = new Date(cursor.getTime() + 86400000);
+        }
+      });
+
+      return set;
+    }
+
     function getCampDay(parts) {
       const start = dateAtKst(CAMP_START_DATE, "00:00");
       const current = dateAtKst(parts.dateString, "00:00");
-      const diffDays = Math.floor((current - start) / 86400000);
-      return Math.max(1, diffDays + 1);
+      if (current < start) return 0;
+
+      const holidays = getHolidayDateSet();
+      let count = 0;
+      let cursor = new Date(start.getTime());
+
+      while (cursor <= current) {
+        const cursorParts = getKstParts(cursor);
+        const isWeekend = cursorParts.weekday === 0 || cursorParts.weekday === 6;
+        const isHoliday = holidays.has(cursorParts.dateString);
+        if (!isWeekend && !isHoliday) count += 1;
+        cursor = new Date(cursor.getTime() + 86400000);
+      }
+
+      return Math.max(1, count);
     }
 
     function render() {
@@ -944,47 +1204,104 @@
 
       renderSegments(events, nowMinutes);
       renderCountdowns(now);
+      if (el.detailDialog.open) renderGantt();
     }
 
     function renderSegments(events, nowMinutes) {
-      const prepared = events.map(item => {
+      const prepared = events.map((item) => {
         const start = Math.max(0, item.dayStart);
         const end = Math.min(1440, item.dayEnd);
-        const left = (start / 1440) * 100;
-        const width = Math.max(.2, ((end - start) / 1440) * 100);
+        const midLeft = ((start + end) / 2 / 1440) * 100;
         const isActive = nowMinutes >= start && nowMinutes < end;
         const categoryName = getCategoryName(item);
-        const tip = `${item.name}\n${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
-        return { item, start, end, left, width, isActive, tip, categoryName };
+        const tip = `${item.name}
+${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
+        return { item, start, end, midLeft, isActive, tip, categoryName };
       });
 
       const nextKey = prepared
-        .map(({ item, start, end, isActive, categoryName }) => `${item.id}:${item.name}:${categoryName}:${start}:${end}:${isActive ? 1 : 0}`)
+        .map(({ item, start, end, midLeft, isActive, categoryName }) => `${item.id}:${item.name}:${categoryName}:${start}:${end}:${midLeft.toFixed(2)}:${isActive ? 1 : 0}`)
         .join("|");
 
-      // 마우스를 올렸을 때 깜빡이던 이유는 1초마다 점 DOM을 새로 그렸기 때문입니다.
-      // 일정 구성이나 활성 상태가 바뀔 때만 다시 그려서 tooltip hover를 안정화합니다.
+      // 일정 구간과 시작/끝 점은 숨기고, 중간 지점에 동그라미 하나만 표시합니다.
       if (nextKey === segmentRenderKey) return;
       segmentRenderKey = nextKey;
 
       el.segmentLayer.innerHTML = "";
       el.markerLayer.innerHTML = "";
 
-      prepared.forEach(({ start, end, left, width, isActive, tip }) => {
-        const seg = document.createElement("div");
-        seg.className = "segment" + (isActive ? " active" : "");
-        seg.style.left = `${left}%`;
-        seg.style.width = `${width}%`;
-        el.segmentLayer.appendChild(seg);
-
+      prepared.forEach(({ midLeft, isActive, tip }) => {
         const dot = document.createElement("button");
         dot.type = "button";
         dot.className = "eventDot" + (isActive ? " active" : "");
-        dot.style.setProperty("--dot-left", `${Math.min(99, Math.max(1, left + width / 2))}%`);
+        dot.style.setProperty("--dot-left", `${Math.min(99, Math.max(1, midLeft))}%`);
         dot.setAttribute("aria-label", tip);
         dot.setAttribute("data-tip", tip);
+        dot.title = tip;
         el.markerLayer.appendChild(dot);
       });
+    }
+
+    function renderGantt() {
+      const now = new Date();
+      const p = getKstParts(now);
+      const events = todayEvents(p);
+      const nowMinutes = p.hour * 60 + p.minute + p.second / 60;
+      const nowLeft = Math.max(0, Math.min(100, (nowMinutes / 1440) * 100));
+      const timeText = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
+
+      el.detailSub.textContent = `오늘은 캠프 ${getCampDay(p)}일차 · ${dayName(p.weekday)}요일 · 현재 ${timeText}`;
+      el.ganttSummary.innerHTML = `<span>오늘 등록된 일정 ${events.length}개</span><span>하루 중 ${nowLeft.toFixed(1)}% 진행 중</span>`;
+      el.ganttRows.innerHTML = "";
+
+      if (!events.length) {
+        el.ganttRows.innerHTML = `<div class="emptyGantt">오늘 표시할 일정이 없어요.</div>`;
+        return;
+      }
+
+      events.forEach(item => {
+        const start = Math.max(0, item.dayStart);
+        const end = Math.min(1440, item.dayEnd);
+        const left = (start / 1440) * 100;
+        const width = Math.max(.7, ((end - start) / 1440) * 100);
+        const row = document.createElement("div");
+        row.className = "ganttRow";
+        const tip = `${item.name}
+${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
+        row.innerHTML = `
+          <div class="ganttName">
+            <b>${escapeHtml(item.name)}</b>
+            <span>${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}</span>
+          </div>
+          <div class="ganttTrack">
+            <span class="ganttNow" style="--now-left:${nowLeft}%"></span>
+            <button class="ganttBar" type="button" style="--g-left:${left}%; --g-width:${width}%" title="${escapeHtml(tip)}" data-tip="${escapeHtml(tip)}">
+              <span class="ganttBarText">${escapeHtml(item.name)}</span>
+            </button>
+          </div>
+        `;
+        el.ganttRows.appendChild(row);
+
+        const bar = row.querySelector(".ganttBar");
+        const text = row.querySelector(".ganttBarText");
+        // 글씨가 잘릴 것으로 예상되면 차트 안 글씨는 숨기고, hover 툴팁으로만 보여줍니다.
+        requestAnimationFrame(() => {
+          if (!bar || !text) return;
+          const available = Math.max(0, bar.clientWidth - 14);
+          if (available < 34 || text.scrollWidth > available) {
+            bar.classList.add("narrow");
+          }
+        });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function updateBubble(active, now) {
@@ -1156,6 +1473,12 @@
       el.dialog.showModal();
     });
 
+    el.openDetails.addEventListener("click", () => {
+      el.detailDialog.showModal();
+      renderGantt();
+    });
+
+    el.closeDetails.addEventListener("click", () => el.detailDialog.close());
     el.closeModal.addEventListener("click", () => el.dialog.close());
     el.clearForm.addEventListener("click", clearForm);
     el.allDay.addEventListener("change", () => { applyAllDayToInputs(); updateRepeatHint(); });
