@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Green Turkey Day Bar v10</title>
+  <title>Notion Green Turkey Gantt v12</title>
   <style>
     :root {
       --sky-1: #f4ffe8;
@@ -23,6 +23,9 @@
       --radius-lg: 20px;
       --radius-md: 14px;
       --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      --name-col: clamp(78px, 9.4vw, 112px);
+      --gantt-gap: 8px;
+      --gantt-pad: clamp(7px, .8vw, 11px);
     }
 
     * { box-sizing: border-box; }
@@ -174,17 +177,164 @@
 
     .barWrap {
       position: relative;
-      margin-top: clamp(4px, .55vw, 8px);
-      padding-top: clamp(42px, 5.2vw, 64px);
-      padding-bottom: 24px;
+      margin-top: 0;
+      padding-top: clamp(38px, 4.4vw, 54px);
+      padding-bottom: 0;
+      min-height: 0;
+    }
+
+    .mainGanttCard {
+      position: relative;
+      border: 1px solid rgba(23,53,31,.1);
+      border-radius: 22px;
+      background: rgba(255,255,255,.62);
+      padding: var(--gantt-pad);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 12px 28px rgba(45,117,50,.11);
+      overflow: hidden;
+    }
+
+    .mainGanttCard::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 34%;
+      background: linear-gradient(180deg, transparent, rgba(141,224,91,.12));
+      pointer-events: none;
+    }
+
+    .mainGanttAxis {
+      position: relative;
+      display: grid;
+      grid-template-columns: var(--name-col) 1fr;
+      gap: var(--gantt-gap);
+      margin-bottom: 5px;
+      color: rgba(23,53,31,.56);
+      font-size: clamp(10px, .8vw, 12px);
+      font-weight: 950;
+      z-index: 1;
+    }
+
+    .mainGanttRows {
+      position: relative;
+      display: grid;
+      gap: clamp(3px, .4vw, 5px);
+      overflow: visible;
+      padding-right: 0;
+      z-index: 1;
+    }
+
+    .mainGanttRow {
+      display: grid;
+      grid-template-columns: var(--name-col) 1fr;
+      gap: var(--gantt-gap);
+      align-items: center;
+    }
+
+    .mainGanttName {
+      min-width: 0;
+    }
+
+    .mainGanttName b {
+      display: block;
+      font-size: clamp(9px, .78vw, 12px);
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mainGanttName span {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: clamp(8px, .68vw, 10px);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .mainGanttTrack {
+      position: relative;
+      height: clamp(19px, 2.05vw, 26px);
+      border-radius: 999px;
+      background:
+        repeating-linear-gradient(90deg, rgba(23,53,31,.055) 0 1px, transparent 1px 25%),
+        rgba(207, 233, 189, .72);
+      overflow: visible;
+      border: 1px solid rgba(23,53,31,.08);
+    }
+
+    .mainGanttBar {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: var(--g-left);
+      width: var(--g-width);
+      min-width: 6px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #a3e635, #37b24d);
+      box-shadow: 0 6px 12px rgba(35,122,57,.15);
+      cursor: help;
+      z-index: 2;
+    }
+
+    .mainGanttBar.active {
+      background: linear-gradient(90deg, #5cdb5f, #1f8f43);
+      box-shadow: 0 8px 18px rgba(23,53,31,.2);
+    }
+
+    .mainGanttBar::after,
+    .mainGanttBar::before {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, transform .16s ease;
+      z-index: 30;
+    }
+
+    .mainGanttBar::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%) translateY(5px);
+      width: max-content;
+      max-width: 260px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(23, 53, 31, .94);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    .mainGanttBar::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 4px);
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(23, 53, 31, .94);
+    }
+
+    .mainGanttBar:hover::after,
+    .mainGanttBar:hover::before,
+    .mainGanttBar:focus-visible::after,
+    .mainGanttBar:focus-visible::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     .turkeyTrack {
       position: absolute;
-      left: 0;
-      right: 0;
+      left: calc(var(--gantt-pad) + var(--name-col) + var(--gantt-gap));
+      right: var(--gantt-pad);
       top: 0;
-      height: 62px;
+      height: 58px;
       pointer-events: none;
       z-index: 4;
     }
@@ -192,12 +342,12 @@
     .turkeyGroup {
       --x: 0%;
       position: absolute;
-      left: clamp(42px, var(--x), calc(100% - 230px));
+      left: clamp(0px, var(--x), 100%);
       top: 0;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transform: translateX(-18%);
+      gap: 4px;
+      transform: translateX(0);
       filter: drop-shadow(0 7px 9px rgba(41, 105, 47, .22));
       animation: runBob 1.18s ease-in-out infinite;
     }
@@ -205,11 +355,14 @@
     .bird {
       display: inline-block;
       font-size: clamp(27px, 3.1vw, 44px);
+      transform: translateX(-50%);
+      line-height: 1;
     }
 
     .speechBubble {
       position: relative;
-      max-width: min(380px, 42vw);
+      max-width: min(360px, 42vw);
+      margin-left: -10px;
       padding: 8px 12px;
       border-radius: 16px 16px 16px 5px;
       background: rgba(255, 255, 255, .94);
@@ -433,6 +586,7 @@
     }
 
     .detailAction {
+      display: none !important;
       position: absolute;
       right: clamp(13px, 1.6vw, 22px);
       bottom: clamp(11px, 1.35vw, 18px);
@@ -613,12 +767,15 @@
       bottom: 0;
       left: var(--now-left);
       width: 2px;
-      background: rgba(23,53,31,.55);
-      box-shadow: 0 0 0 3px rgba(255,255,255,.6);
-      z-index: 3;
+      background: rgba(23,53,31,.16);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.24);
+      z-index: 4;
+      mix-blend-mode: multiply;
+      pointer-events: none;
     }
 
     .emptyGantt {
+      grid-column: 1 / -1;
       padding: 28px 16px;
       text-align: center;
       color: var(--muted);
@@ -783,6 +940,53 @@
     }
     .miniBtn.del { background: rgba(178,59,59,.1); color: #b23b3b; }
 
+    .weeklyDays {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .dayButtons {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .dayButtons label {
+      display: block;
+      cursor: pointer;
+    }
+
+    .dayButtons input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dayButtons span {
+      display: grid;
+      place-items: center;
+      height: 36px;
+      border-radius: 999px;
+      background: rgba(23,53,31,.07);
+      border: 1px solid rgba(23,53,31,.09);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 950;
+      transition: transform .16s ease, background .16s ease, color .16s ease;
+    }
+
+    .dayButtons input:checked + span {
+      background: linear-gradient(135deg, #2f9e44, #1b7f3a);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 7px 16px rgba(35,122,57,.16);
+    }
+
+    .dayButtons label:hover span { transform: translateY(-1px); }
+
     .hide { display: none !important; }
 
     @media (max-width: 740px) {
@@ -795,8 +999,11 @@
       .speechBubble { max-width: 240px; }
       .two { grid-template-columns: 1fr; }
       .detailAction { right: 14px; bottom: 12px; }
-      .ganttAxis, .ganttRow { grid-template-columns: 92px 1fr; gap: 8px; }
+      .ganttAxis, .ganttRow, .mainGanttAxis, .mainGanttRow { grid-template-columns: 82px 1fr; gap: 8px; }
+      :root { --name-col: 82px; --gantt-gap: 8px; }
       .ganttName b { font-size: 12px; }
+      .mainGanttRows { max-height: 190px; }
+      .dayButtons { grid-template-columns: repeat(4, 1fr); }
     }
   </style>
 </head>
@@ -824,14 +1031,12 @@
             <span class="speechBubble" id="nowBubble">지금은 자유 학습 시간입니다.</span>
           </div>
         </div>
-        <div class="bar">
-          <div class="fill" id="fill"></div>
-          <div class="segmentLayer" id="segmentLayer"></div>
-          <div class="markerLayer" id="markerLayer"></div>
-          <div class="shine"></div>
-        </div>
-        <div class="timeMarks" aria-hidden="true">
-          <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+        <div class="mainGanttCard" aria-label="오늘 일정 간트차트">
+          <div class="mainGanttAxis" aria-hidden="true">
+            <span>오늘 일정</span>
+            <div class="axisTrack"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+          </div>
+          <div class="mainGanttRows" id="mainGanttRows"></div>
         </div>
       </div>
     </section>
@@ -890,6 +1095,18 @@
               <option value="weekly">매주</option>
             </select>
           </label>
+          <div class="weeklyDays hide" id="weeklyDaysField">
+            <span>반복 요일</span>
+            <div class="dayButtons" id="weekdayButtons" aria-label="반복 요일 선택">
+              <label><input type="checkbox" value="1"><span>월</span></label>
+              <label><input type="checkbox" value="2"><span>화</span></label>
+              <label><input type="checkbox" value="3"><span>수</span></label>
+              <label><input type="checkbox" value="4"><span>목</span></label>
+              <label><input type="checkbox" value="5"><span>금</span></label>
+              <label><input type="checkbox" value="6"><span>토</span></label>
+              <label><input type="checkbox" value="0"><span>일</span></label>
+            </div>
+          </div>
           <div class="formActions">
             <button class="btn" type="submit" id="saveBtn">저장하기</button>
             <button class="btn secondary" type="button" id="clearForm">입력 초기화</button>
@@ -972,10 +1189,8 @@
       todaySub: document.getElementById("todaySub"),
       progressBadge: document.getElementById("progressBadge"),
       nowBubble: document.getElementById("nowBubble"),
-      fill: document.getElementById("fill"),
       turkeyGroup: document.getElementById("turkeyGroup"),
-      segmentLayer: document.getElementById("segmentLayer"),
-      markerLayer: document.getElementById("markerLayer"),
+      mainGanttRows: document.getElementById("mainGanttRows"),
       countdowns: document.getElementById("countdowns"),
       clock: document.getElementById("clock"),
       dialog: document.getElementById("scheduleDialog"),
@@ -990,6 +1205,8 @@
       endDateTime: document.getElementById("endDateTime"),
       allDay: document.getElementById("allDay"),
       recurrence: document.getElementById("recurrence"),
+      weeklyDaysField: document.getElementById("weeklyDaysField"),
+      weekdayButtons: document.getElementById("weekdayButtons"),
       itemList: document.getElementById("itemList"),
       clearForm: document.getElementById("clearForm"),
       resetDefault: document.getElementById("resetDefault"),
@@ -1004,6 +1221,7 @@
 
     let items = loadItems();
     let segmentRenderKey = "";
+    let mainGanttRenderKey = "";
 
     function cloneDefaults() {
       return JSON.parse(JSON.stringify(DEFAULT_ITEMS));
@@ -1198,13 +1416,59 @@
       el.todaySub.textContent = `${dayName(p.weekday)}요일 · 현재 ${timeText} · 하루 중 ${progress.toFixed(1)}% 진행 중`;
       el.clock.textContent = timeText;
       el.progressBadge.textContent = ``;
-      el.fill.style.width = `${progress}%`;
       el.turkeyGroup.style.setProperty("--x", `${progress}%`);
       updateBubble(active, now);
 
-      renderSegments(events, nowMinutes);
+      renderMainGantt(events, nowMinutes, progress);
       renderCountdowns(now);
       if (el.detailDialog.open) renderGantt();
+    }
+
+
+    function renderMainGantt(events, nowMinutes, nowLeft) {
+      const prepared = events.map(item => {
+        const start = Math.max(0, item.dayStart);
+        const end = Math.min(1440, item.dayEnd);
+        const left = (start / 1440) * 100;
+        const width = Math.max(.7, ((end - start) / 1440) * 100);
+        const isActive = nowMinutes >= start && nowMinutes < end;
+        const tip = `${item.name}
+${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
+        return { item, start, end, left, width, isActive, tip };
+      });
+
+      const nextKey = prepared
+        .map(({ item, start, end, isActive }) => `${item.id}:${item.name}:${start}:${end}:${isActive ? 1 : 0}`)
+        .join("|");
+
+      el.mainGanttRows.querySelectorAll(".ganttNow").forEach(line => {
+        line.style.setProperty("--now-left", `${nowLeft}%`);
+      });
+
+      if (nextKey === mainGanttRenderKey) return;
+      mainGanttRenderKey = nextKey;
+      el.mainGanttRows.innerHTML = "";
+
+      if (!prepared.length) {
+        el.mainGanttRows.innerHTML = `<div class="emptyGantt">오늘 표시할 일정이 없어요.</div>`;
+        return;
+      }
+
+      prepared.forEach(({ item, start, end, left, width, isActive, tip }) => {
+        const row = document.createElement("div");
+        row.className = "mainGanttRow";
+        row.innerHTML = `
+          <div class="mainGanttName">
+            <b>${escapeHtml(item.name)}</b>
+            <span>${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}</span>
+          </div>
+          <div class="mainGanttTrack">
+            <span class="ganttNow" style="--now-left:${nowLeft}%"></span>
+            <button class="mainGanttBar${isActive ? " active" : ""}" type="button" style="--g-left:${left}%; --g-width:${width}%" title="${escapeHtml(tip)}" data-tip="${escapeHtml(tip)}"></button>
+          </div>
+        `;
+        el.mainGanttRows.appendChild(row);
+      });
     }
 
     function renderSegments(events, nowMinutes) {
@@ -1417,13 +1681,34 @@ ${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
       if (el.endDateTime.value) el.endDateTime.value = `${datePart(el.endDateTime.value)}T23:59`;
     }
 
+
+    function getSelectedWeekdays() {
+      return [...el.weekdayButtons.querySelectorAll("input:checked")].map(input => Number(input.value));
+    }
+
+    function setSelectedWeekdays(days = []) {
+      const set = new Set(days.map(Number));
+      el.weekdayButtons.querySelectorAll("input").forEach(input => {
+        input.checked = set.has(Number(input.value));
+      });
+    }
+
+    function ensureWeeklyDayDefault() {
+      if (el.recurrence.value !== "weekly") return;
+      if (getSelectedWeekdays().length) return;
+      const baseDay = el.startDateTime.value ? weekdayFromDateValue(el.startDateTime.value) : getKstParts().weekday;
+      setSelectedWeekdays([baseDay]);
+    }
+
     function updateRepeatHint() {
       const selected = el.recurrence.value;
+      el.weeklyDaysField.classList.toggle("hide", selected !== "weekly");
       if (selected === "daily") {
         el.repeatHint.textContent = "매일 반복됩니다. 시작/종료 시간은 하루 일정에 표시될 시간을 의미해요.";
       } else if (selected === "weekly") {
-        const day = el.startDateTime.value ? dayName(weekdayFromDateValue(el.startDateTime.value)) : "선택한";
-        el.repeatHint.textContent = `매주 ${day}요일마다 반복됩니다. 시작 날짜의 요일을 기준으로 잡아요.`;
+        ensureWeeklyDayDefault();
+        const selectedNames = getSelectedWeekdays().sort((a, b) => a - b).map(dayName).join("·");
+        el.repeatHint.textContent = `매주 ${selectedNames || "선택한"}요일마다 반복됩니다. 원하는 요일을 직접 고를 수 있어요.`;
       } else {
         el.repeatHint.textContent = "반복 없이 시작/종료 날짜와 시간으로 한 번만 등록됩니다.";
       }
@@ -1442,6 +1727,7 @@ ${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
       el.saveBtn.textContent = "저장하기";
       el.allDay.checked = false;
       el.recurrence.value = "once";
+      setSelectedWeekdays([]);
       setDefaultDateTimes();
       updateRepeatHint();
     }
@@ -1452,6 +1738,7 @@ ${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
       el.name.value = item.name;
       el.allDay.checked = !!item.allDay;
       el.recurrence.value = item.recurrence || "once";
+      setSelectedWeekdays(item.days || []);
 
       if (item.recurrence === "daily" || item.recurrence === "weekly") {
         const baseDate = item.startDate || p.dateString;
@@ -1484,7 +1771,8 @@ ${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
     el.allDay.addEventListener("change", () => { applyAllDayToInputs(); updateRepeatHint(); });
     el.startDateTime.addEventListener("change", () => { applyAllDayToInputs(); updateRepeatHint(); });
     el.endDateTime.addEventListener("change", applyAllDayToInputs);
-    el.recurrence.addEventListener("change", updateRepeatHint);
+    el.recurrence.addEventListener("change", () => { ensureWeeklyDayDefault(); updateRepeatHint(); });
+    el.weekdayButtons.addEventListener("change", updateRepeatHint);
 
     el.resetDefault.addEventListener("click", () => {
       if (!confirm("현재 브라우저에 저장된 일정을 지우고 처음 기본값으로 복구할까요?")) return;
@@ -1527,11 +1815,13 @@ ${timeTextFromMinutes(start)}-${timeTextFromMinutes(end)}`;
           end: timePart(normalizedEnd)
         };
       } else if (repeat === "weekly") {
+        const selectedDays = getSelectedWeekdays();
+        if (!selectedDays.length) return alert("매주 반복할 요일을 하나 이상 선택해주세요.");
         item = {
           ...base,
           recurrence: "weekly",
           startDate: datePart(normalizedStart),
-          days: [weekdayFromDateValue(normalizedStart)],
+          days: selectedDays.sort((a, b) => a - b),
           start: timePart(normalizedStart),
           end: timePart(normalizedEnd)
         };
